@@ -1,0 +1,40 @@
+@startuml
+' left to right direction
+hide empty members
+skin rose
+
+class Sensor <<entity>> {
+    - id: Long
+    - nombre: String
+    - descripcion: String
+    - unidad: String
+    - formula: String
+    + Sensor(...)
+    + getId(): Long
+    + getNombre(): String
+    + getDescripcion(): String
+    + getUnidad(): String
+    + getFormula(): String
+    + toFisico(senial: double): double
+}
+Sensor --> "*" Medida
+
+class Medida <<entity>> {
+    - senial: double
+    - fisico: double
+    - timestamp: long
+    + Medida(senial: double, fisico: double, timestamp: long)
+    + getSenial(): double
+    + getFisico(): double
+    + getTimestamp(): long
+}
+
+class MedidaController <<controller>> {
+    + getMedidas(idEjecucion: long, idSensor: long): List<Medida>
+    + getUltimaMedida(idEjecucion: long, idSensor: long): Medida
+    + getMedidas(idEjecucion: long, idSensor: long): List<Medida>
+    + getMedidas(idEjecucion: long, idSensor: long, timestamp: long, lastSeconds: int): List<Medida>
+    + getMedidas(idEjecucion: long, idSensor: long, timestamp: long, lastEntries: int): List<Medida>
+}
+
+@enduml

@@ -1,0 +1,40 @@
+@startuml
+'left to right direction
+skin rose
+skinparam defaultFontName Ubuntu Condensed
+skinparam shadowing false
+' skinparam componentStyle uml2
+skinparam actorStyle awesome
+
+package μsata #whitesmoke {
+
+    frame simulador #lightblue {
+        component RaspberryPi <<controller>> as controller
+        component Arduino <<microcontroller>> as microcontroller
+        collections Componente <<sensor/actuador>> as componente
+    }
+
+    frame "spring server" #lightgreen {
+        database "Repositorio de Datos" <<sqlite>> as database
+        component Backend <<spring>> as backend
+        component Core <<spring>> as core
+    }
+
+    frame browser #lightpink {
+        component Frontend <<nextjs>> as frontend
+    }
+
+    actor "Actor" <<human>> as user
+
+    frontend -(0- backend : https >
+    core -- backend : direct <
+    core -(0- database : sql >
+    core -0)- controller : grpc <
+    controller --> microcontroller : serial
+    microcontroller --> componente : serial
+
+    frontend <-- user
+}
+
+
+@enduml

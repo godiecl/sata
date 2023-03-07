@@ -1,0 +1,22 @@
+@startuml
+' left to right direction
+hide empty members
+skin rose
+
+entity Sensor {
+    identificador
+    nombre
+    código
+    tipo:
+    formula: ej. 0.44V * 100 = 44°C
+    unidad: ej. C°
+}
+
+entity Medida {
+    valor señal: 0.44V
+    valor físico: 20°
+    timestamp: 1666647746117
+}
+Medida "*" <-- "1" Sensor: adquiere/mide/capta/registra <
+
+@enduml

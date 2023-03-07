@@ -1,0 +1,220 @@
+@startuml
+' left to right direction
+hide empty members
+'
+set separator none
+skin rose
+skinparam defaultFontName Ubuntu Condensed
+skinparam IconPrivateColor red
+'skinparam shadowing false
+
+package cl.ucn.fondef.sata.backend.domain #whitesmoke {
+
+    entity Usuario {
+        - rut
+        - email
+        - nombre
+        - apellido
+        - password
+        .. external ..
+        - rolUsuario
+        - estadoUsuario
+    }
+
+    enum RolUsuario {
+        ROL_UNSPECIFIED
+        ROL_ADMINISTRADOR
+        ROL_CONFIGURADOR
+        ROL_OPERADOR
+    }
+    RolUsuario "1" -- Usuario: <
+
+    enum EstadoUsuario {
+        ESTADO_UNSPECIFIED
+        ESTADO_ACTIVO
+        ESTADO_INACTIVO
+    }
+    EstadoUsuario "1" -- Usuario: <
+
+    package registry #lightpink {
+
+        entity Registro {
+            - idEntidad
+            - descripcion
+            - fecha
+            .. external ..
+            - tipoRegistro
+        }
+
+        enum TipoRegistro {
+            TIPO_UNSPECIFIED
+            TIPO_CREACION_USUARIO
+            TIPO_LOGIN_USUARIO
+            TIPO_CREACION_SIMULACION
+            TIPO_INICIO_SIMULACION
+            TIPO_UPLOAD_ARCHIVO
+        }
+        TipoRegistro "1" -- Registro: <
+
+    }
+
+    package device #lightblue {
+
+        entity Equipo {
+            - nombre: String
+            - descripcion: String
+            - urlRepositorio: String
+            .. external ..
+            - estadoEquipo
+            - archivos
+            - componentes
+            - simulaciones
+        }
+
+        enum EstadoEquipo {
+            ESTADO_UNSPECIFIED
+            ESTADO_PROTOTIPO
+            ESTADO_CONSTRUCCION
+        }
+        EstadoEquipo "1" -- Equipo: <
+
+        entity Archivo {
+            - nombre: String
+            - size: Long
+            - url: String
+            .. external ..
+            - tipoArchivo
+            - equipo
+        }
+        Archivo "*" -- Equipo: <
+
+        enum TipoArchivo {
+            TIPO_UNSPECIFIED
+            TIPO_PNG
+            TIPO_PDF
+            TIPO_JPG
+        }
+        TipoArchivo "1" -- Archivo: <
+
+        entity Componente {
+            - nombre
+            - descripcion
+            - unidad
+            - formula
+            - umbralMinimo
+            - umbralWarning
+            - umbralError
+            - tarjeta
+            .. external ..
+            - estadoComponente
+            - tipoComponente
+            - equipo
+        }
+        Componente "*" -- Equipo: <
+
+        enum TipoComponente {
+            TIPO_UNSPECIFIED
+            TIPO_SENSOR
+            TIPO_ACTUADOR
+            TIPO_SENSOR_ACTUADOR
+        }
+        TipoComponente "1" -- Componente: <
+
+        enum EstadoComponente {
+            ESTADO_UNSPECIFIED
+            ESTADO_ACTIVO
+            ESTADO_INACTIVO
+            ESTADO_FALLA
+            ESTADO_REPARACION
+        }
+        EstadoComponente "1" -- Componente: <
+
+        /'
+        entity Placa {
+            - nombre
+            ..
+            - tipoPlaca
+        }
+
+        enum TipoPlaca {
+            TIPO_UNSPECIFIED
+            TIPO_ARDUINO_MEGA2560
+            TIPO_ESP32_WROOM_32
+        }
+        TipoPlaca "1" -- Placa: <
+        '/
+
+    }
+
+    package simulation #lightgreen {
+
+        entity Simulacion {
+            - nombre
+            - descripcion
+            - fecha
+            .. extesrnal ..
+            - estadoSimulacion
+            - eventos
+            - ejecuciones
+            - equipo
+        }
+        Simulacion "*" -- Equipo: <
+
+        enum EstadoSimulacion {
+            ESTADO_UNSPECIFIED
+            ESTADO_INICIALIZADA
+            ESTADO_EN_EJECUCION
+            ESTADO_DETENIDA
+            ESTADO_TERMINADA
+        }
+        EstadoSimulacion "1" -- Simulacion: <
+
+        entity Ejecucion {
+            - fechaInicio
+            - fechaTermino
+            - descripción
+            - resumen
+            .. external ..
+            - estadoEjecucion
+            - medidas
+            - ultimoEvento // TODO: We need this?
+            - simulacion
+        }
+        Ejecucion "*" -- Simulacion: <
+
+        enum EstadoEjecucion {
+            ESTADO_UNSPECIFIED
+            ESTADO_INICIALIZADA
+            ESTADO_EN_EJECUCION
+            ESTADO_DETENIDA
+            ESTADO_TERMINADA
+        }
+        EstadoEjecucion "1" -- Ejecucion: <
+
+        entity Evento {
+            - intensidad
+            - duracion
+            - tiempo
+            - descripcion
+            .. external ..
+            - componente
+            - simulacion+
+        }
+        Evento "*" -- Simulacion: <
+        Evento -- "1" Componente: >
+        ' Evento -- "Ejecucion": < TODO: Verificar esta asociacion
+
+        entity Medida {
+            - senial
+            - valor
+            - fecha
+            .. external ..
+            - componente
+            - ejecucion
+        }
+        Medida "*" -- Ejecucion: <
+        Medida -- "1" Componente: >
+    }
+}
+
+@enduml
